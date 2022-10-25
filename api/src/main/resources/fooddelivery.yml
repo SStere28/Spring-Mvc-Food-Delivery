@@ -1,0 +1,157 @@
+openapi: "3.0.0"
+info:
+  description: Simple Api
+  version: 1.0.0
+  title: FoodDelivery api
+servers:
+  - url: http://localhost:8080/
+paths:
+  /foodservice/foods:
+    get:
+      summary: List of all foods
+      operationId: listAllFoods
+      responses:
+        '200':
+          description: List of all foods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FoodModel'
+  /orderservice/orders:
+    get:
+      summary: List of authenticated customer's orders
+      responses:
+        '200':
+          description: List of authenticated customer's orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderModel'
+    post:
+      summary: The created order from the cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartModel'
+      responses:
+        '200':
+          description: The created order from the cart
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderModel"
+        '400':
+          description:  the cart is empty, balance of authenticated customer is not enough
+  /orderservice/orders/{orderId}:
+    get:
+      summary: Order of the authenticated customer
+      operationId: showOrderById
+      tags:
+        - orders
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: The id of the order to retrieve
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderModel"
+        '403':
+          description: the order exists but does not belong to the authenticated customer
+        '404':
+          description: the order does not exist
+components:
+  schemas:
+    FoodModel:
+      type: object
+      required:
+        - id
+        - name
+        - calorie
+        - description
+        - price
+        - category
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        calorie:
+          type: BigDecimal
+        description:
+          type: string
+        price:
+          type: BigDecimal
+        category:
+          $ref: "#/components/Category"
+    CartModel:
+      type: object
+      required:
+        - price
+        - orderItemModels
+      properties:
+        price:
+          type: BigDecimal
+        orderItemModels:
+          type: array
+          items:
+            $ref: '#/components/OrderItemModel'
+    OrderItemModel:
+      type: object
+      required:
+        - id
+        - foodModel
+        - price
+        - pieces
+      properties:
+        id:
+          type: integer
+          format: int64
+        foodModel:
+          type: object
+          $ref: '#/components/FoodModel'
+        price:
+          type: BigDecimal
+        pieces:
+          type: integer
+    OrderModel:
+      type: object
+      required:
+        - id
+        - price
+        - timestampCreated
+        - orderItemModels
+      properties:
+        id:
+          type: integer
+          format: int64
+        price:
+          type: BigDecimal
+        timestampCreated:
+          type: Date
+        orderItemModels:
+          type: array
+          items:
+            $ref: '#/components/OrderItemModel'
+    Category:
+      type: string
+      enum:
+        - GRAINS
+        - FRUIT
+        - VEGETABLE
+        - DAIRY
+        - MEAT
+        - SNACK
+        - MEAL

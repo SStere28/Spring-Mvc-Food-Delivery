@@ -1,0 +1,5 @@
+rootProject.name = 'FoodDelivery'
+include 'app'
+include 'data'
+include 'api'
+
